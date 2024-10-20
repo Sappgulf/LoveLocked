@@ -1,0 +1,91 @@
+// scripts.js
+
+// Enable drag-and-drop functionality
+const sections = document.querySelectorAll('.draggable-section');
+const mainContainer = document.getElementById('main-container');
+
+// Add event listeners to each section for dragging
+sections.forEach(section => {
+    section.addEventListener('dragstart', handleDragStart);
+    section.addEventListener('dragover', handleDragOver);
+    section.addEventListener('drop', handleDrop);
+});
+
+let draggedElement = null;
+
+function handleDragStart(e) {
+    draggedElement = e.target;
+}
+
+function handleDragOver(e) {
+    e.preventDefault(); // Prevent default behavior to allow dropping
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    if (e.target.classList.contains('draggable-section')) {
+        mainContainer.insertBefore(draggedElement, e.target);
+        saveLayout();
+    }
+}
+
+// Save layout to localStorage (order of sections)
+function saveLayout() {
+    const sectionOrder = Array.from(mainContainer.children).map(section => section.id);
+    localStorage.setItem('layoutOrder', JSON.stringify(sectionOrder));
+}
+
+// Load saved layout
+window.addEventListener('DOMContentLoaded', () => {
+    const savedOrder = JSON.parse(localStorage.getItem('layoutOrder'));
+    if (savedOrder) {
+        savedOrder.forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            mainContainer.appendChild(section);
+        });
+    }
+});
+
+// Toggle visibility of sections
+document.getElementById('toggle-timeline').addEventListener('change', function() {
+    document.getElementById('timeline').style.display = this.checked ? 'block' : 'none';
+    saveVisibility();
+});
+document.getElementById('toggle-journal').addEventListener('change', function() {
+    document.getElementById('journal').style.display = this.checked ? 'block' : 'none';
+    saveVisibility();
+});
+document.getElementById('toggle-poems').addEventListener('change', function() {
+    document.getElementById('poems').style.display = this.checked ? 'block' : 'none';
+    saveVisibility();
+});
+document.getElementById('toggle-playlist').addEventListener('change', function() {
+    document.getElementById('playlist').style.display = this.checked ? 'block' : 'none';
+    saveVisibility();
+});
+
+// Save visibility preferences
+function saveVisibility() {
+    const visibilitySettings = {
+        timeline: document.getElementById('toggle-timeline').checked,
+        journal: document.getElementById('toggle-journal').checked,
+        poems: document.getElementById('toggle-poems').checked,
+        playlist: document.getElementById('toggle-playlist').checked,
+    };
+    localStorage.setItem('visibilitySettings', JSON.stringify(visibilitySettings));
+}
+
+// Load visibility preferences
+window.addEventListener('DOMContentLoaded', () => {
+    const savedVisibility = JSON.parse(localStorage.getItem('visibilitySettings'));
+    if (savedVisibility) {
+        document.getElementById('timeline').style.display = savedVisibility.timeline ? 'block' : 'none';
+        document.getElementById('journal').style.display = savedVisibility.journal ? 'block' : 'none';
+        document.getElementById('poems').style.display = savedVisibility.poems ? 'block' : 'none';
+        document.getElementById('playlist').style.display = savedVisibility.playlist ? 'block' : 'none';
+        document.getElementById('toggle-timeline').checked = savedVisibility.timeline;
+        document.getElementById('toggle-journal').checked = savedVisibility.journal;
+        document.getElementById('toggle-poems').checked = savedVisibility.poems;
+        document.getElementById('toggle-playlist').checked = savedVisibility.playlist;
+    }
+});
